@@ -1,0 +1,43 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h3 class="logo">AlquilerVehiculos</h3>
+      <div class="user-info">
+        <span class="user-name">{{userName}}</span>
+        <span class="user-role">{{userRole}}</span>
+      </div>
+    </div>
+    
+    <ul class="sidebar-menu">
+      <li *ngFor="let item of menuItems">
+        <a *ngIf="hasPermission(item)" 
+           [routerLink]="item.path" 
+           routerLinkActive="active">
+          <span class="material-icons">{{item.icon}}</span>
+          {{item.label}}
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <span class="material-icons">logout</span>
+        Cerrar Sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="breadcrumb">
+        <span>Dashboard</span>
+      </div>
+    </header>
+    
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

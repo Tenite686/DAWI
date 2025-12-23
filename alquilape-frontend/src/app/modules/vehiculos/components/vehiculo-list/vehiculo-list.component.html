@@ -1,0 +1,261 @@
+<div class="vehiculos-container">
+  <div class="header">
+    <h2>Gestión de Vehículos</h2>
+    <div class="header-actions">
+      <button class="btn-filter" 
+              (click)="toggleDisponibles()"
+              [class.active]="mostrarDisponibles">
+        <span class="material-icons">{{mostrarDisponibles ? 'visibility_off' : 'visibility'}}</span>
+        {{mostrarDisponibles ? 'Mostrar Todos' : 'Solo Disponibles'}}
+      </button>
+      <button *ngIf="canEdit()" 
+              class="btn-primary" 
+              routerLink="/dashboard/vehiculos/nuevo">
+        <span class="material-icons">add</span>
+        Nuevo Vehículo
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-card">
+    <h3>Filtrar Vehículos</h3>
+    <div class="filters-grid">
+      <div class="form-group">
+        <label>Marca</label>
+        <input type="text" 
+               [(ngModel)]="filtros.marca" 
+               class="form-control"
+               placeholder="Toyota, Volkswagen...">
+      </div>
+      
+      <div class="form-group">
+        <label>Tipo</label>
+        <select [(ngModel)]="filtros.tipo" class="form-control">
+          <option value="">Todos los tipos</option>
+          <option *ngFor="let tipo of tiposVehiculo" [value]="tipo">{{tipo}}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Estado</label>
+        <select [(ngModel)]="filtros.estado" class="form-control">
+          <option value="">Todos los estados</option>
+          <option *ngFor="let estado of estadosVehiculo" [value]="estado">{{estado}}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Precio Mínimo</label>
+        <input type="number" 
+               [(ngModel)]="filtros.precioMin" 
+               class="form-control"
+               placeholder="0"
+               min="0">
+      </div>
+      
+      <div class="form-group">
+        <label>Precio Máximo</label>
+        <input type="number" 
+               [(ngModel)]="filtros.precioMax" 
+               class="form-control"
+               placeholder="1000"
+               min="0">
+      </div>
+      
+      <div class="filter-buttons">
+        <button class="btn-primary" (click)="buscarVehiculos()">
+          <span class="material-icons">search</span>
+          Buscar
+        </button>
+        <button class="btn-secondary" (click)="limpiarFiltros()">
+          <span class="material-icons">clear</span>
+          Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de vehículos -->
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" class="vehiculos-table">
+      
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let vehiculo">{{vehiculo.id}}</td>
+      </ng-container>
+      
+      <!-- Marca Column -->
+      <ng-container matColumnDef="marca">
+        <th mat-header-cell *matHeaderCellDef>Marca</th>
+        <td mat-cell *matCellDef="let vehiculo">{{vehiculo.marca}}</td>
+      </ng-container>
+      
+      <!-- Modelo Column -->
+      <ng-container matColumnDef="modelo">
+        <th mat-header-cell *matHeaderCellDef>Modelo</th>
+        <td mat-cell *matCellDef="let vehiculo">{{vehiculo.modelo}}</td>
+      </ng-container>
+      
+      <!-- Placa Column -->
+      <ng-container matColumnDef="placa">
+        <th mat-header-cell *matHeaderCellDef>Placa</th>
+        <td mat-cell *matCellDef="let vehiculo">
+          <span class="placa-badge">{{vehiculo.placa}}</span>
+        </td>
+      </ng-container>
+      
+      <!-- Tipo Column -->
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let vehiculo">
+          <span class="badge" [ngClass]="getTipoBadgeClass(vehiculo.tipo)">
+            {{vehiculo.tipo}}
+          </span>
+        </td>
+      </ng-container>
+      
+      <!-- Estado Column -->
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let vehiculo">
+          <span class="badge" [ngClass]="getEstadoBadgeClass(vehiculo.estado)">
+            {{vehiculo.estado}}
+          </span>
+        </td>
+      </ng-container>
+      
+      <!-- Precio Column -->
+      <ng-container matColumnDef="precio">
+        <th mat-header-cell *matHeaderCellDef>Precio/Día</th>
+        <td mat-cell *matCellDef="let vehiculo">
+          {{vehiculo.precioPorDia | currency:'USD':'symbol':'1.2-2'}}
+        </td>
+      </ng-container>
+      
+      <!-- Kilometraje Column -->
+      <ng-container matColumnDef="kilometraje">
+        <th mat-header-cell *matHeaderCellDef>Kilometraje</th>
+        <td mat-cell *matCellDef="let vehiculo">
+          {{vehiculo.kilometraje | number}} km
+        </td>
+      </ng-container>
+      
+      <!-- Acciones Column -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let vehiculo">
+          <div class="actions">
+            <button class="btn-icon" 
+                    (click)="verDetalles(vehiculo)"
+                    title="Ver detalles">
+              <span class="material-icons">visibility</span>
+            </button>
+            
+            <button *ngIf="canEdit()" 
+                    class="btn-icon btn-success"
+                    routerLink="/dashboard/vehiculos/nuevo"
+                    [queryParams]="{id: vehiculo.id}"
+                    title="Editar">
+              <span class="material-icons">edit</span>
+            </button>
+            
+            <button *ngIf="canEdit()" 
+                    class="btn-icon btn-danger"
+                    (click)="eliminarVehiculo(vehiculo.id)"
+                    title="Eliminar">
+              <span class="material-icons">delete</span>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+      
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <span>Cargando vehículos...</span>
+    </div>
+    
+    <div *ngIf="getVehiculosAMostrar().length === 0 && !isLoading" class="no-data">
+      No se encontraron vehículos
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <mat-paginator [length]="totalElements"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="[5, 10, 20]"
+                 (page)="cambiarPagina($event)"  aria-label="Select page">
+  </mat-paginator>
+</div>
+
+<!-- Modal de Detalles -->
+<div *ngIf="mostrarModalDetalles" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Detalles del Vehículo</h3>
+      <button class="btn-close" (click)="cerrarModalDetalles()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    
+    <div *ngIf="vehiculoDetalles" class="modal-body">
+      <div class="vehicle-header">
+        <h4>{{vehiculoDetalles.marca}} {{vehiculoDetalles.modelo}}</h4>
+        <span class="placa">{{vehiculoDetalles.placa}}</span>
+      </div>
+      
+      <div class="detail-grid">
+        <div class="detail-item">
+          <strong>Año:</strong> {{vehiculoDetalles.anio}}
+        </div>
+        <div class="detail-item">
+          <strong>Color:</strong> {{vehiculoDetalles.color}}
+        </div>
+        <div class="detail-item">
+          <strong>Tipo:</strong>
+          <span class="badge" [ngClass]="getTipoBadgeClass(vehiculoDetalles.tipo)">
+            {{vehiculoDetalles.tipo}}
+          </span>
+        </div>
+        <div class="detail-item">
+          <strong>Estado:</strong>
+          <span class="badge" [ngClass]="getEstadoBadgeClass(vehiculoDetalles.estado)">
+            {{vehiculoDetalles.estado}}
+          </span>
+        </div>
+        <div class="detail-item">
+          <strong>Precio por día:</strong> {{vehiculoDetalles.precioPorDia | currency:'USD':'symbol':'1.2-2'}}
+        </div>
+        <div class="detail-item">
+          <strong>Kilometraje:</strong> {{vehiculoDetalles.kilometraje | number}} km
+        </div>
+        <div class="detail-item">
+          <strong>Capacidad:</strong> {{vehiculoDetalles.capacidadPasajeros}} pasajeros
+        </div>
+      </div>
+      
+      <div *ngIf="vehiculoDetalles.caracteristicasAdicionales" class="caracteristicas-section">
+        <h4>Características Adicionales</h4>
+        <div class="caracteristicas-grid">
+          <div *ngFor="let key of getCaracteristicasKeys(vehiculoDetalles.caracteristicasAdicionales)" 
+               class="caracteristica-item">
+            <strong>{{key}}:</strong> {{vehiculoDetalles.caracteristicasAdicionales[key]}}
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" 
+                class="btn-secondary" 
+                (click)="cerrarModalDetalles()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

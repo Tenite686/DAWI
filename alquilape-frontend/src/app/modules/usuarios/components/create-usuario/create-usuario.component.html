@@ -1,0 +1,119 @@
+<div class="create-usuario-container">
+  <div class="header">
+    <h2>Nuevo Usuario</h2>
+    <button class="btn-secondary" routerLink="/dashboard/usuarios">
+      <span class="material-icons">arrow_back</span>
+      Volver
+    </button>
+  </div>
+
+  <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()" class="usuario-form">
+    <div class="form-row">
+      <!-- Username -->
+      <div class="form-group">
+        <label for="username">Nombre de Usuario *</label>
+        <input type="text" 
+               id="username" 
+               formControlName="username" 
+               class="form-control"
+               placeholder="ejemplo: juan.perez"
+               [class.is-invalid]="f['username'].invalid && f['username'].touched">
+        <div *ngIf="f['username'].invalid && f['username'].touched" class="invalid-feedback">
+          <span *ngIf="f['username'].errors?.['required']">Usuario es requerido</span>
+          <span *ngIf="f['username'].errors?.['minlength']">Mínimo 3 caracteres</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Contraseña *</label>
+        <div class="password-input">
+          <input [type]="passwordVisible ? 'text' : 'password'" 
+                 id="password" 
+                 formControlName="password" 
+                 class="form-control"
+                 placeholder="Mínimo 6 caracteres"
+                 [class.is-invalid]="f['password'].invalid && f['password'].touched">
+          <button type="button" 
+                  class="password-toggle"
+                  (click)="togglePasswordVisibility()"
+                  tabindex="-1">
+            <span class="material-icons">
+              {{passwordVisible ? 'visibility_off' : 'visibility'}}
+            </span>
+          </button>
+        </div>
+        <div *ngIf="f['password'].invalid && f['password'].touched" class="invalid-feedback">
+          <span *ngIf="f['password'].errors?.['required']">Contraseña es requerida</span>
+          <span *ngIf="f['password'].errors?.['minlength']">Mínimo 6 caracteres</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input type="email" 
+               id="email" 
+               formControlName="email" 
+               class="form-control"
+               placeholder="ejemplo@correo.com"
+               [class.is-invalid]="f['email'].invalid && f['email'].touched">
+        <div *ngIf="f['email'].invalid && f['email'].touched" class="invalid-feedback">
+          <span *ngIf="f['email'].errors?.['required']">Email es requerido</span>
+          <span *ngIf="f['email'].errors?.['email']">Email inválido</span>
+        </div>
+      </div>
+
+      <!-- Nombre Completo -->
+      <div class="form-group">
+        <label for="nombreCompleto">Nombre Completo *</label>
+        <input type="text" 
+               id="nombreCompleto" 
+               formControlName="nombreCompleto" 
+               class="form-control"
+               placeholder="Juan Pérez Rodríguez"
+               [class.is-invalid]="f['nombreCompleto'].invalid && f['nombreCompleto'].touched">
+        <div *ngIf="f['nombreCompleto'].invalid && f['nombreCompleto'].touched" class="invalid-feedback">
+          <span *ngIf="f['nombreCompleto'].errors?.['required']">Nombre completo es requerido</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rol -->
+    <div class="form-group">
+      <label for="rol">Rol *</label>
+      <select id="rol" 
+              formControlName="rol" 
+              class="form-control"
+              [class.is-invalid]="f['rol'].invalid && f['rol'].touched">
+        <option *ngFor="let rol of roles" [value]="rol">{{rol}}</option>
+      </select>
+      <div *ngIf="f['rol'].invalid && f['rol'].touched" class="invalid-feedback">
+        <span *ngIf="f['rol'].errors?.['required']">Rol es requerido</span>
+      </div>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{errorMessage}}
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <button type="button" 
+              class="btn-secondary" 
+              (click)="cancelar()"
+              [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" 
+              class="btn-primary"
+              [disabled]="isSubmitting || usuarioForm.invalid">
+        <span *ngIf="isSubmitting" class="spinner-small"></span>
+        {{isSubmitting ? 'Creando...' : 'Crear Usuario'}}
+      </button>
+    </div>
+  </form>
+</div>

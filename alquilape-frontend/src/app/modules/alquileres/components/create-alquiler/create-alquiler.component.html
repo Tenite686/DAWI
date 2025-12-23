@@ -1,0 +1,155 @@
+<div class="create-alquiler-container">
+  <div class="header">
+    <h2>Nuevo Alquiler</h2>
+    <button class="btn-secondary" routerLink="/dashboard/alquileres">
+      <span class="material-icons">arrow_back</span>
+      Volver
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- Resumen -->
+    <div class="summary-card" *ngIf="alquilerForm.get('vehiculoId')?.value && alquilerForm.get('fechaFinEstimada')?.value">
+      <h3>Resumen del Alquiler</h3>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <strong>Duración:</strong> {{calcularDias()}} días
+        </div>
+        <div class="summary-item">
+          <strong>Precio por día:</strong> 
+          <span *ngIf="alquilerForm.get('vehiculoId')?.value">
+            {{getVehiculoPrecio() | currency:'USD':'symbol':'1.2-2'}}
+          </span>
+        </div>
+        <div class="summary-item total">
+          <strong>Precio Total Estimado:</strong> 
+          {{calcularPrecioTotal() | currency:'USD':'symbol':'1.2-2'}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="alquilerForm" (ngSubmit)="onSubmit()" class="alquiler-form">
+      <div class="form-row">
+        <!-- Cliente -->
+        <div class="form-group">
+          <label for="clienteId">Cliente *</label>
+          <select id="clienteId" 
+                  formControlName="clienteId" 
+                  class="form-control"
+                  [class.is-invalid]="f['clienteId'].invalid && f['clienteId'].touched">
+            <option value="">Seleccionar cliente</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{cliente.nombre}} {{cliente.apellido}} - {{cliente.dniRuc}}
+            </option>
+          </select>
+          <div *ngIf="f['clienteId'].invalid && f['clienteId'].touched" class="invalid-feedback">
+            <span *ngIf="f['clienteId'].errors?.['required']">Cliente es requerido</span>
+          </div>
+        </div>
+
+        <!-- Vehículo -->
+        <div class="form-group">
+          <label for="vehiculoId">Vehículo *</label>
+          <select id="vehiculoId" 
+                  formControlName="vehiculoId" 
+                  class="form-control"
+                  (change)="onVehiculoSelect(f['vehiculoId'].value)"
+                  [class.is-invalid]="f['vehiculoId'].invalid && f['vehiculoId'].touched">
+            <option value="">Seleccionar vehículo</option>
+            <option *ngFor="let vehiculo of vehiculosDisponibles" [value]="vehiculo.id">
+              {{vehiculo.marca}} {{vehiculo.modelo}} ({{vehiculo.placa}}) - {{vehiculo.precioPorDia | currency:'USD':'symbol':'1.2-2'}}/día
+            </option>
+          </select>
+          <div *ngIf="f['vehiculoId'].invalid && f['vehiculoId'].touched" class="invalid-feedback">
+            <span *ngIf="f['vehiculoId'].errors?.['required']">Vehículo es requerido</span>
+          </div>
+          <small *ngIf="vehiculosDisponibles.length === 0" class="text-warning">
+            No hay vehículos disponibles en este momento
+          </small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Fecha Inicio -->
+        <div class="form-group">
+          <label for="fechaInicio">Fecha de Inicio *</label>
+          <input type="datetime-local" 
+                 id="fechaInicio" 
+                 formControlName="fechaInicio" 
+                 class="form-control"
+                 [min]="fechaMin"
+                 [max]="fechaMax"
+                 [class.is-invalid]="f['fechaInicio'].invalid && f['fechaInicio'].touched">
+          <div *ngIf="f['fechaInicio'].invalid && f['fechaInicio'].touched" class="invalid-feedback">
+            <span *ngIf="f['fechaInicio'].errors?.['required']">Fecha de inicio es requerida</span>
+          </div>
+        </div>
+
+        <!-- Fecha Fin Estimada -->
+        <div class="form-group">
+          <label for="fechaFinEstimada">Fecha de Fin Estimada *</label>
+          <input type="datetime-local" 
+                 id="fechaFinEstimada" 
+                 formControlName="fechaFinEstimada" 
+                 class="form-control"
+                 [min]="f['fechaInicio'].value"
+                 [max]="fechaMax"
+                 [class.is-invalid]="f['fechaFinEstimada'].invalid && f['fechaFinEstimada'].touched">
+          <div *ngIf="f['fechaFinEstimada'].invalid && f['fechaFinEstimada'].touched" class="invalid-feedback">
+            <span *ngIf="f['fechaFinEstimada'].errors?.['required']">Fecha de fin es requerida</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Kilometraje Inicial -->
+        <div class="form-group">
+          <label for="kilometrajeInicio">Kilometraje Inicial *</label>
+          <input type="number" 
+                 id="kilometrajeInicio" 
+                 formControlName="kilometrajeInicio" 
+                 class="form-control"
+                 min="0"
+                 step="1"
+                 [class.is-invalid]="f['kilometrajeInicio'].invalid && f['kilometrajeInicio'].touched">
+          <div *ngIf="f['kilometrajeInicio'].invalid && f['kilometrajeInicio'].touched" class="invalid-feedback">
+            <span *ngIf="f['kilometrajeInicio'].errors?.['required']">Kilometraje es requerido</span>
+            <span *ngIf="f['kilometrajeInicio'].errors?.['min']">El kilometraje debe ser mayor o igual a 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="form-group">
+        <label for="observaciones">Observaciones</label>
+        <textarea id="observaciones" 
+                  formControlName="observaciones" 
+                  class="form-control"
+                  rows="3"
+                  placeholder="Notas adicionales sobre el alquiler..."></textarea>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{errorMessage}}
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button type="button" 
+                class="btn-secondary" 
+                (click)="cancelar()"
+                [disabled]="isSubmitting">
+          Cancelar
+        </button>
+        <button type="submit" 
+                class="btn-primary"
+                [disabled]="isSubmitting || alquilerForm.invalid">
+          <span *ngIf="isSubmitting" class="spinner-small"></span>
+          {{isSubmitting ? 'Creando...' : 'Crear Alquiler'}}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

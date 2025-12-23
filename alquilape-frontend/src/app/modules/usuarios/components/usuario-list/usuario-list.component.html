@@ -1,0 +1,112 @@
+<div class="usuarios-container">
+  <div class="header">
+    <h2>Gestión de Usuarios</h2>
+    <button *ngIf="canEdit()" 
+            class="btn-primary" 
+            routerLink="/dashboard/usuarios/nuevo">
+      <span class="material-icons">add</span>
+      Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <div class="search-box">
+      <input type="text" 
+             [(ngModel)]="searchTerm" 
+             placeholder="Buscar por nombre o email..."
+             (keyup.enter)="loadUsuarios()">
+      <button (click)="loadUsuarios()">
+        <span class="material-icons">search</span>
+      </button>
+    </div>
+    
+    <select [(ngModel)]="rolFilter" (change)="loadUsuarios()">
+      <option value="">Todos los roles</option>
+      <option *ngFor="let rol of roles" [value]="rol">{{rol}}</option>
+    </select>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="table-container">
+    <table class="usuarios-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Nombre Completo</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Fecha Creación</th>
+          <th *ngIf="canEdit()">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of usuarios">
+          <td>{{usuario.id}}</td>
+          <td>{{usuario.username}}</td>
+          <td>{{usuario.nombreCompleto}}</td>
+          <td>{{usuario.email}}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-admin': usuario.rol === 'ADMIN',
+              'badge-supervisor': usuario.rol === 'SUPERVISOR',
+              'badge-asistente': usuario.rol === 'ASISTENTE'
+            }">
+              {{usuario.rol}}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-active': usuario.activo,
+              'badge-inactive': !usuario.activo
+            }">
+              {{usuario.activo ? 'Activo' : 'Inactivo'}}
+            </span>
+          </td>
+          <td>{{usuario.fechaCreacion | date:'dd/MM/yyyy'}}</td>
+          <td *ngIf="canEdit()" class="actions">
+            <button class="btn-icon" 
+                    [title]="usuario.activo ? 'Desactivar' : 'Activar'"
+                    (click)="cambiarEstado(usuario.id, !usuario.activo)">
+              <span class="material-icons">
+                {{usuario.activo ? 'toggle_on' : 'toggle_off'}}
+              </span>
+            </button>
+            
+            <select *ngIf="usuario.rol !== 'ADMIN'" 
+                    [(ngModel)]="usuario.rol"
+                    (change)="cambiarRol(usuario.id, usuario.rol)"
+                    class="select-rol">
+              <option value="SUPERVISOR">SUPERVISOR</option>
+              <option value="ASISTENTE">ASISTENTE</option>
+            </select>
+            
+            <button class="btn-icon btn-danger" 
+                    (click)="eliminarUsuario(usuario.id)">
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <span>Cargando usuarios...</span>
+    </div>
+    
+    <div *ngIf="usuarios.length === 0 && !isLoading" class="no-data">
+      No se encontraron usuarios
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <mat-paginator [length]="totalElements"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="[5, 10, 20]"
+                 (page)="onPageChange($event)"
+                 aria-label="Select page">
+  </mat-paginator>
+</div>

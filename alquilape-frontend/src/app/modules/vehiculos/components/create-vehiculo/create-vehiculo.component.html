@@ -1,0 +1,232 @@
+<div class="create-vehiculo-container">
+ <div class="header">
+  <h2>{{ titulo }}</h2> <button class="btn-secondary" routerLink="/dashboard/vehiculos">
+    <span class="material-icons">arrow_back</span>
+    Volver
+    </button>
+  </div>
+
+  <form [formGroup]="vehiculoForm" (ngSubmit)="onSubmit()" class="vehiculo-form">
+    <div class="form-section">
+      <h3>Información Básica</h3>
+      <div class="form-row">
+        <!-- Marca -->
+        <div class="form-group">
+          <label for="marca">Marca *</label>
+          <input type="text" 
+                 id="marca" 
+                 formControlName="marca" 
+                 class="form-control"
+                 placeholder="Toyota, Volkswagen, etc."
+                 [class.is-invalid]="f['marca'].invalid && f['marca'].touched">
+          <div *ngIf="f['marca'].invalid && f['marca'].touched" class="invalid-feedback">
+            <span *ngIf="f['marca'].errors?.['required']">Marca es requerida</span>
+          </div>
+        </div>
+
+        <!-- Modelo -->
+        <div class="form-group">
+          <label for="modelo">Modelo *</label>
+          <input type="text" 
+                 id="modelo" 
+                 formControlName="modelo" 
+                 class="form-control"
+                 placeholder="Corolla, Virtus, etc."
+                 [class.is-invalid]="f['modelo'].invalid && f['modelo'].touched">
+          <div *ngIf="f['modelo'].invalid && f['modelo'].touched" class="invalid-feedback">
+            <span *ngIf="f['modelo'].errors?.['required']">Modelo es requerido</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Año -->
+        <div class="form-group">
+          <label for="anio">Año *</label>
+          <input type="number" 
+                 id="anio" 
+                 formControlName="anio" 
+                 class="form-control"
+                 min="1900"
+                 [max]="maxYear"
+                 [class.is-invalid]="f['anio'].invalid && f['anio'].touched">
+          <div *ngIf="f['anio'].invalid && f['anio'].touched" class="invalid-feedback">
+            <span *ngIf="f['anio'].errors?.['required']">Año es requerido</span>
+            <span *ngIf="f['anio'].errors?.['min']">Año mínimo: 1900</span>
+            <span *ngIf="f['anio'].errors?.['max']">Año máximo: {{maxYear}}</span>
+          </div>
+        </div>
+
+        <!-- Placa -->
+        <div class="form-group">
+          <label for="placa">Placa *</label>
+          <input type="text" 
+                 id="placa" 
+                 formControlName="placa" 
+                 class="form-control"
+                 placeholder="ABC123"
+                 [class.is-invalid]="f['placa'].invalid && f['placa'].touched">
+          <div *ngIf="f['placa'].invalid && f['placa'].touched" class="invalid-feedback">
+            <span *ngIf="f['placa'].errors?.['required']">Placa es requerida</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Color -->
+        <div class="form-group">
+          <label for="color">Color *</label>
+          <input type="text" 
+                 id="color" 
+                 formControlName="color" 
+                 class="form-control"
+                 placeholder="Blanco, Negro, etc."
+                 [class.is-invalid]="f['color'].invalid && f['color'].touched">
+          <div *ngIf="f['color'].invalid && f['color'].touched" class="invalid-feedback">
+            <span *ngIf="f['color'].errors?.['required']">Color es requerido</span>
+          </div>
+        </div>
+
+        <!-- Tipo -->
+        <div class="form-group">
+          <label for="tipo">Tipo *</label>
+          <select id="tipo" 
+                  formControlName="tipo" 
+                  class="form-control"
+                  [class.is-invalid]="f['tipo'].invalid && f['tipo'].touched">
+            <option *ngFor="let tipo of tiposVehiculo" [value]="tipo">{{tipo}}</option>
+          </select>
+          <div *ngIf="f['tipo'].invalid && f['tipo'].touched" class="invalid-feedback">
+            <span *ngIf="f['tipo'].errors?.['required']">Tipo es requerido</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Detalles de Alquiler</h3>
+      <div class="form-row">
+        <!-- Estado -->
+        <div class="form-group">
+          <label for="estado">Estado *</label>
+          <select id="estado" 
+                  formControlName="estado" 
+                  class="form-control"
+                  [class.is-invalid]="f['estado'].invalid && f['estado'].touched">
+            <option *ngFor="let estado of estadosVehiculo" [value]="estado">{{estado}}</option>
+          </select>
+          <div *ngIf="f['estado'].invalid && f['estado'].touched" class="invalid-feedback">
+            <span *ngIf="f['estado'].errors?.['required']">Estado es requerido</span>
+          </div>
+        </div>
+
+        <!-- Precio por Día -->
+        <div class="form-group">
+          <label for="precioPorDia">Precio por Día (USD) *</label>
+          <input type="number" 
+                 id="precioPorDia" 
+                 formControlName="precioPorDia" 
+                 class="form-control"
+                 min="0"
+                 step="0.01"
+                 [class.is-invalid]="f['precioPorDia'].invalid && f['precioPorDia'].touched">
+          <div *ngIf="f['precioPorDia'].invalid && f['precioPorDia'].touched" class="invalid-feedback">
+            <span *ngIf="f['precioPorDia'].errors?.['required']">Precio es requerido</span>
+            <span *ngIf="f['precioPorDia'].errors?.['min']">Precio debe ser mayor o igual a 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Kilometraje -->
+        <div class="form-group">
+          <label for="kilometraje">Kilometraje *</label>
+          <input type="number" 
+                 id="kilometraje" 
+                 formControlName="kilometraje" 
+                 class="form-control"
+                 min="0"
+                 step="1"
+                 [class.is-invalid]="f['kilometraje'].invalid && f['kilometraje'].touched">
+          <div *ngIf="f['kilometraje'].invalid && f['kilometraje'].touched" class="invalid-feedback">
+            <span *ngIf="f['kilometraje'].errors?.['required']">Kilometraje es requerido</span>
+            <span *ngIf="f['kilometraje'].errors?.['min']">Kilometraje debe ser mayor o igual a 0</span>
+          </div>
+        </div>
+
+        <!-- Capacidad de Pasajeros -->
+        <div class="form-group">
+          <label for="capacidadPasajeros">Capacidad de Pasajeros *</label>
+          <input type="number" 
+                 id="capacidadPasajeros" 
+                 formControlName="capacidadPasajeros" 
+                 class="form-control"
+                 min="1"
+                 step="1"
+                 [class.is-invalid]="f['capacidadPasajeros'].invalid && f['capacidadPasajeros'].touched">
+          <div *ngIf="f['capacidadPasajeros'].invalid && f['capacidadPasajeros'].touched" class="invalid-feedback">
+            <span *ngIf="f['capacidadPasajeros'].errors?.['required']">Capacidad es requerida</span>
+            <span *ngIf="f['capacidadPasajeros'].errors?.['min']">Capacidad mínima: 1 pasajero</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Características Adicionales -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Características Adicionales</h3>
+        <button type="button" 
+                class="btn-sm"
+                (click)="agregarCaracteristica()">
+          <span class="material-icons">add</span>
+          Agregar
+        </button>
+      </div>
+      
+      <div *ngFor="let caracteristica of caracteristicasAdicionales; let i = index" 
+           class="caracteristica-row">
+        <input type="text" 
+               [(ngModel)]="caracteristica.key" 
+               [ngModelOptions]="{standalone: true}"
+               class="form-control"
+               placeholder="Característica (ej: aire_acondicionado)">
+        <input type="text" 
+               [(ngModel)]="caracteristica.value" 
+               [ngModelOptions]="{standalone: true}"
+               class="form-control"
+               placeholder="Valor (ej: true, 'doble aire')">
+        <button type="button" 
+                class="btn-icon btn-danger"
+                (click)="removerCaracteristica(i)">
+          <span class="material-icons">delete</span>
+        </button>
+      </div>
+      
+      <small class="text-muted">Características como aire acondicionado, bluetooth, etc.</small>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{errorMessage}}
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <button type="button" 
+              class="btn-secondary" 
+              (click)="cancelar()"
+              [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" 
+          class="btn-primary"
+          [disabled]="isSubmitting || vehiculoForm.invalid">
+          <span *ngIf="isSubmitting" class="spinner-small"></span>
+          <span *ngIf="!isSubmitting">Guardar</span>
+          <span *ngIf="isSubmitting">Guardando...</span>
+    
+  </button>
+    </div>
+  </form>
+</div>

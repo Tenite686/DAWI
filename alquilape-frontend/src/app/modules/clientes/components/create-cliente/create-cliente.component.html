@@ -1,0 +1,178 @@
+<div class="create-cliente-container">
+  <div class="header">
+    <h2>Nuevo Cliente</h2>
+    <button class="btn-secondary" routerLink="/dashboard/clientes">
+      <span class="material-icons">arrow_back</span>
+      Volver
+    </button>
+  </div>
+
+  <form [formGroup]="clienteForm" (ngSubmit)="onSubmit()" class="cliente-form">
+    <div class="form-section">
+      <h3>Información Personal</h3>
+      <div class="form-row">
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="nombre">Nombre *</label>
+          <input type="text" 
+                 id="nombre" 
+                 formControlName="nombre" 
+                 class="form-control"
+                 placeholder="Juan"
+                 [class.is-invalid]="f['nombre'].invalid && f['nombre'].touched">
+          <div *ngIf="f['nombre'].invalid && f['nombre'].touched" class="invalid-feedback">
+            <span *ngIf="f['nombre'].errors?.['required']">Nombre es requerido</span>
+          </div>
+        </div>
+
+        <!-- Apellido -->
+        <div class="form-group">
+          <label for="apellido">Apellido *</label>
+          <input type="text" 
+                 id="apellido" 
+                 formControlName="apellido" 
+                 class="form-control"
+                 placeholder="Pérez"
+                 [class.is-invalid]="f['apellido'].invalid && f['apellido'].touched">
+          <div *ngIf="f['apellido'].invalid && f['apellido'].touched" class="invalid-feedback">
+            <span *ngIf="f['apellido'].errors?.['required']">Apellido es requerido</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- DNI/RUC -->
+        <div class="form-group">
+          <label for="dniRuc">DNI/RUC *</label>
+          <input type="text" 
+                 id="dniRuc" 
+                 formControlName="dniRuc" 
+                 class="form-control"
+                 placeholder="12345678 (8-11 dígitos)"
+                 [class.is-invalid]="f['dniRuc'].invalid && f['dniRuc'].touched">
+          <div *ngIf="f['dniRuc'].invalid && f['dniRuc'].touched" class="invalid-feedback">
+            <span *ngIf="f['dniRuc'].errors?.['required']">DNI/RUC es requerido</span>
+            <span *ngIf="f['dniRuc'].errors?.['pattern']">Formato inválido (8-11 dígitos)</span>
+          </div>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label for="telefono">Teléfono *</label>
+          <input type="text" 
+                 id="telefono" 
+                 formControlName="telefono" 
+                 class="form-control"
+                 placeholder="987654321 (9 dígitos)"
+                 [class.is-invalid]="f['telefono'].invalid && f['telefono'].touched">
+          <div *ngIf="f['telefono'].invalid && f['telefono'].touched" class="invalid-feedback">
+            <span *ngIf="f['telefono'].errors?.['required']">Teléfono es requerido</span>
+            <span *ngIf="f['telefono'].errors?.['pattern']">Formato inválido (9 dígitos)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input type="email" 
+               id="email" 
+               formControlName="email" 
+               class="form-control"
+               placeholder="cliente@correo.com"
+               [class.is-invalid]="f['email'].invalid && f['email'].touched">
+        <div *ngIf="f['email'].invalid && f['email'].touched" class="invalid-feedback">
+          <span *ngIf="f['email'].errors?.['required']">Email es requerido</span>
+          <span *ngIf="f['email'].errors?.['email']">Email inválido</span>
+        </div>
+      </div>
+
+      <!-- Dirección -->
+      <div class="form-group">
+        <label for="direccion">Dirección *</label>
+        <textarea id="direccion" 
+                  formControlName="direccion" 
+                  class="form-control"
+                  rows="2"
+                  placeholder="Av. Principal 123, Ciudad"
+                  [class.is-invalid]="f['direccion'].invalid && f['direccion'].touched"></textarea>
+        <div *ngIf="f['direccion'].invalid && f['direccion'].touched" class="invalid-feedback">
+          <span *ngIf="f['direccion'].errors?.['required']">Dirección es requerida</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Información Adicional</h3>
+      
+      <!-- Tipo -->
+      <div class="form-group">
+        <label for="tipo">Tipo de Cliente *</label>
+        <select id="tipo" 
+                formControlName="tipo" 
+                class="form-control"
+                [class.is-invalid]="f['tipo'].invalid && f['tipo'].touched">
+          <option *ngFor="let tipo of tiposCliente" [value]="tipo">{{tipo}}</option>
+        </select>
+        <div *ngIf="f['tipo'].invalid && f['tipo'].touched" class="invalid-feedback">
+          <span *ngIf="f['tipo'].errors?.['required']">Tipo es requerido</span>
+        </div>
+      </div>
+
+      <!-- Información de Licencia (solo para PERSONA) -->
+      <div *ngIf="f['tipo'].value === 'PERSONA'" class="licencia-section">
+        <div class="form-row">
+          <!-- Número de Licencia -->
+          <div class="form-group">
+            <label for="licenciaNumero">Número de Licencia *</label>
+            <input type="text" 
+                   id="licenciaNumero" 
+                   formControlName="licenciaNumero" 
+                   class="form-control"
+                   placeholder="L12345678"
+                   [class.is-invalid]="f['licenciaNumero'].invalid && f['licenciaNumero'].touched">
+            <div *ngIf="f['licenciaNumero'].invalid && f['licenciaNumero'].touched" class="invalid-feedback">
+              <span *ngIf="f['licenciaNumero'].errors?.['required']">Número de licencia es requerido</span>
+            </div>
+          </div>
+
+          <!-- Vencimiento de Licencia -->
+          <div class="form-group">
+            <label for="licenciaVencimiento">Vencimiento de Licencia *</label>
+            <input type="date" 
+                   id="licenciaVencimiento" 
+                   formControlName="licenciaVencimiento" 
+                   class="form-control"
+                   [min]="fechaMin"
+                   [max]="fechaMax"
+                   [class.is-invalid]="f['licenciaVencimiento'].invalid && f['licenciaVencimiento'].touched">
+            <div *ngIf="f['licenciaVencimiento'].invalid && f['licenciaVencimiento'].touched" class="invalid-feedback">
+              <span *ngIf="f['licenciaVencimiento'].errors?.['required']">Vencimiento es requerido</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{errorMessage}}
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <button type="button" 
+              class="btn-secondary" 
+              (click)="cancelar()"
+              [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" 
+              class="btn-primary"
+              [disabled]="isSubmitting || clienteForm.invalid">
+        <span *ngIf="isSubmitting" class="spinner-small"></span>
+        {{isSubmitting ? 'Creando...' : 'Crear Cliente'}}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,201 @@
+<div class="clientes-container">
+  <div class="header">
+    <h2>Gestión de Clientes</h2>
+    <div class="header-actions">
+      <button *ngIf="canEdit()" 
+              class="btn-primary" 
+              routerLink="/dashboard/clientes/nuevo">
+        <span class="material-icons">add</span>
+        Nuevo Cliente
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-card">
+    <h3>Filtrar Clientes</h3>
+    <div class="filters-grid">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" 
+               [(ngModel)]="filtros.nombre" 
+               class="form-control"
+               placeholder="Buscar por nombre...">
+      </div>
+      
+      <div class="form-group">
+        <label>Tipo</label>
+        <select [(ngModel)]="filtros.tipo" class="form-control">
+          <option value="">Todos los tipos</option>
+          <option *ngFor="let tipo of tiposCliente" [value]="tipo">{{tipo}}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Estado</label>
+        <mat-slide-toggle [(ngModel)]="filtros.activo" color="primary">
+          {{filtros.activo ? 'Activos' : 'Inactivos'}}
+        </mat-slide-toggle>
+      </div>
+      
+      <div class="filter-buttons">
+        <button class="btn-primary" (click)="buscarClientes()">
+          <span class="material-icons">search</span>
+          Buscar
+        </button>
+        <button class="btn-secondary" (click)="loadClientes()">
+          <span class="material-icons">refresh</span>
+          Recargar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de clientes -->
+  <div class="table-container">
+    <table mat-table [dataSource]="clientes" class="clientes-table">
+      
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let cliente">{{cliente.id}}</td>
+      </ng-container>
+      
+      <!-- Nombre Column -->
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let cliente">
+          <div class="cliente-info">
+            <div class="cliente-nombre">{{cliente.nombre}} {{cliente.apellido}}</div>
+            <div class="cliente-dni">{{cliente.dniRuc}}</div>
+          </div>
+        </td>
+      </ng-container>
+      
+      <!-- Contacto Column -->
+      <ng-container matColumnDef="contacto">
+        <th mat-header-cell *matHeaderCellDef>Contacto</th>
+        <td mat-cell *matCellDef="let cliente">
+          <div class="contacto-info">
+            <div><span class="material-icons icon">email</span> {{cliente.email}}</div>
+            <div><span class="material-icons icon">phone</span> {{cliente.telefono}}</div>
+          </div>
+        </td>
+      </ng-container>
+      
+      <!-- Tipo Column -->
+      <ng-container matColumnDef="tipo">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let cliente">
+          <span class="badge" [ngClass]="{
+            'badge-persona': cliente.tipo === 'PERSONA',
+            'badge-empresa': cliente.tipo === 'EMPRESA'
+          }">
+            {{cliente.tipo}}
+          </span>
+        </td>
+      </ng-container>
+      
+      <!-- Estado Column -->
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let cliente">
+          <span class="badge" [ngClass]="{
+            'badge-active': cliente.activo,
+            'badge-inactive': !cliente.activo
+          }">
+            {{cliente.activo ? 'Activo' : 'Inactivo'}}
+          </span>
+        </td>
+      </ng-container>
+      
+      <!-- Licencia Column -->
+      <ng-container matColumnDef="licencia">
+        <th mat-header-cell *matHeaderCellDef>Licencia</th>
+        <td mat-cell *matCellDef="let cliente">
+          <div *ngIf="cliente.tipo === 'PERSONA'">
+            <div>{{cliente.licenciaNumero}}</div>
+            <small>Vence: {{cliente.licenciaVencimiento | date:'dd/MM/yyyy'}}</small>
+          </div>
+          <div *ngIf="cliente.tipo === 'EMPRESA'">
+            <span class="text-muted">No aplica</span>
+          </div>
+        </td>
+      </ng-container>
+      
+      <!-- Acciones Column -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let cliente">
+          <div class="actions">
+            <button class="btn-icon" 
+                    (click)="verHistorial(cliente.id)"
+                    title="Ver historial de alquileres">
+              <span class="material-icons">history</span>
+            </button>
+            
+            <button *ngIf="canEdit()" 
+                    class="btn-icon btn-warning"
+                    [routerLink]="['/dashboard/clientes/nuevo']" 
+                    [queryParams]="{id: cliente.id}"
+                    title="Editar cliente">
+              <span class="material-icons">edit</span>
+            </button>
+            
+            <button *ngIf="canDelete()" 
+                    class="btn-icon btn-danger"
+                    (click)="eliminarCliente(cliente.id)"
+                    title="Eliminar cliente">
+              <span class="material-icons">delete</span>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+      
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <span>Cargando clientes...</span>
+    </div>
+    
+    <!-- Empty State -->
+    <div *ngIf="clientes.length === 0 && !isLoading" class="no-data">
+      <span class="material-icons icon-large">person_off</span>
+      <h3>No se encontraron clientes</h3>
+      <p *ngIf="filtros.nombre || filtros.tipo">Intenta con otros filtros de búsqueda</p>
+      <button *ngIf="canEdit()" 
+              class="btn-primary"
+              routerLink="/dashboard/clientes/nuevo">
+        <span class="material-icons">add</span>
+        Crear Primer Cliente
+      </button>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <mat-paginator [length]="totalElements"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="[5, 10, 20]"
+                 (page)="onPageChange($event)"
+                 aria-label="Select page">
+  </mat-paginator>
+</div>
+
+<!-- Modal de Historial (placeholder) -->
+<div *ngIf="false" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Historial de Alquileres</h3>
+      <button class="btn-close">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Historial se cargará aquí dinámicamente -->
+    </div>
+  </div>
+</div>
