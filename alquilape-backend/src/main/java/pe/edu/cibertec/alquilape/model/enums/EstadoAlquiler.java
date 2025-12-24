@@ -3,7 +3,8 @@ package pe.edu.cibertec.alquilape.model.enums;
 public enum EstadoAlquiler {
     ACTIVO("Activo"),
     COMPLETADO("Completado"),
-    CANCELADO("Cancelado");
+    CANCELADO("Cancelado"),
+    FINALIZADO("Finalizado");
 
     private final String descripcion;
 

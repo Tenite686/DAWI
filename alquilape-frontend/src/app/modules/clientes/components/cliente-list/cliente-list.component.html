@@ -186,16 +186,68 @@
 </div>
 
 <!-- Modal de Historial (placeholder) -->
-<div *ngIf="false" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 class="modal-title">Historial de Alquileres</h3>
-      <button class="btn-close">
+<div *ngIf="mostrarModalHistorial" class="modal-overlay">
+  <div class="modal-content modal-lg"> <div class="modal-header">
+      <h3 class="modal-title">
+        Historial: {{ clienteSeleccionado?.nombre }} {{ clienteSeleccionado?.apellido }}
+      </h3>
+      <button class="btn-close" (click)="cerrarModalHistorial()">
         <span class="material-icons">close</span>
       </button>
     </div>
+    
     <div class="modal-body">
-      <!-- Historial se cargará aquí dinámicamente -->
+      
+      <div *ngIf="isLoadingHistorial" class="loading">
+        <div class="spinner"></div>
+        <span>Cargando historial...</span>
+      </div>
+
+      <div *ngIf="!isLoadingHistorial && historialAlquileres.length > 0" class="table-container">
+        <table class="alquileres-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Vehículo</th>
+              <th>Fecha Inicio</th>
+              <th>Estado</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let alq of historialAlquileres">
+              <td>{{ alq.id }}</td>
+              <td>
+                {{ alq.vehiculo?.marca }} {{ alq.vehiculo?.modelo }}
+                <small>({{ alq.vehiculo?.placa }})</small>
+              </td>
+              <td>{{ alq.fechaInicio | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-active': alq.estado === 'ACTIVO',
+                  'badge-success': alq.estado === 'FINALIZADO' || alq.estado === 'COMPLETADO',
+                  'badge-danger': alq.estado === 'CANCELADO'
+                }">
+                  {{ alq.estado }}
+                </span>
+              </td>
+              <td>{{ alq.precioTotal | currency:'USD' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!isLoadingHistorial && historialAlquileres.length === 0" class="no-data">
+        <p>Este cliente no tiene alquileres registrados.</p>
+      </div>
+
     </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="cerrarModalHistorial()">
+        Cerrar
+      </button>
+    </div>
+
   </div>
 </div>

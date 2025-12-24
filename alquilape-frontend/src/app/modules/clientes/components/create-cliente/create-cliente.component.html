@@ -1,6 +1,6 @@
 <div class="create-cliente-container">
   <div class="header">
-    <h2>Nuevo Cliente</h2>
+    <h2>{{titulo}}</h2>
     <button class="btn-secondary" routerLink="/dashboard/clientes">
       <span class="material-icons">arrow_back</span>
       Volver
@@ -158,7 +158,6 @@
     <div *ngIf="errorMessage" class="alert alert-danger">
       {{errorMessage}}
     </div>
-
     <!-- Botones -->
     <div class="form-actions">
       <button type="button" 
@@ -171,7 +170,9 @@
               class="btn-primary"
               [disabled]="isSubmitting || clienteForm.invalid">
         <span *ngIf="isSubmitting" class="spinner-small"></span>
-        {{isSubmitting ? 'Creando...' : 'Crear Cliente'}}
+        <span *ngIf="isSubmitting" class="spinner-small" ></span>
+        <span *ngIf="isSubmitting" >Guardando...</span>
+        <span *ngIf="!isSubmitting" >Guardar</span>
       </button>
     </div>
   </form>

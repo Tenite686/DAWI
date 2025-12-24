@@ -1,6 +1,7 @@
 // modules/clientes/components/cliente-list/cliente-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ClienteService } from '../../../../core/services/cliente.service';
+import { AlquilerService } from '../../../../core/services/alquiler.service';
 import { Cliente, TipoCliente } from '../../../../core/models/cliente.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -45,10 +46,19 @@ export class ClienteListComponent implements OnInit {
   };
   
   tiposCliente = Object.values(TipoCliente);
+  // Dentro de la clase ClienteListComponent
+displayedColumns: string[] = ['id', 'nombre', 'contacto', 'tipo', 'estado', 'licencia', 'acciones'];
 
+// --- VARIABLES NUEVAS PARA EL HISTORIAL ---
+  mostrarModalHistorial: boolean = false;
+  historialAlquileres: any[] = [];
+  clienteSeleccionado: any = null;
+  isLoadingHistorial: boolean = false;
+  
   constructor(
     private clienteService: ClienteService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alquilerService: AlquilerService
   ) {}
 
   ngOnInit(): void {
@@ -86,16 +96,32 @@ export class ClienteListComponent implements OnInit {
   }
 
   verHistorial(clienteId: number): void {
-    // Navegar a historial o mostrar modal
-    this.clienteService.getHistorialAlquileres(clienteId).subscribe({
-      next: (historial) => {
-        console.log('Historial:', historial);
-        // Mostrar modal con historial
+    this.isLoadingHistorial = true;
+    this.mostrarModalHistorial = true; // Abre el modal
+    
+    // Buscamos el nombre del cliente para el título
+    this.clienteSeleccionado = this.clientes.find(c => c.id === clienteId);
+
+    // Usamos AlquilerService para buscar por clienteId
+    this.alquilerService.buscarAlquileres({ clienteId: clienteId }).subscribe({
+      next: (response) => {
+        // Asignamos la respuesta (manejo seguro de paginación o lista)
+        this.historialAlquileres = response.content || response;
+        this.isLoadingHistorial = false;
+        console.log('Historial cargado:', this.historialAlquileres);
       },
       error: (error) => {
         console.error('Error obteniendo historial:', error);
+        this.isLoadingHistorial = false;
       }
     });
+  }
+
+  // --- FUNCIÓN PARA CERRAR EL MODAL ---
+  cerrarModalHistorial(): void {
+    this.mostrarModalHistorial = false;
+    this.historialAlquileres = [];
+    this.clienteSeleccionado = null;
   }
 
   eliminarCliente(clienteId: number): void {
@@ -121,8 +147,6 @@ export class ClienteListComponent implements OnInit {
     return this.authService.hasAnyRole(['ADMIN', 'SUPERVISOR']);
   }
 
-  // Dentro de la clase ClienteListComponent
-displayedColumns: string[] = ['id', 'nombre', 'contacto', 'tipo', 'estado', 'licencia', 'acciones'];
 
 onPageChange(event: any): void {
   this.currentPage = event.pageIndex;

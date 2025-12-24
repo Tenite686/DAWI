@@ -237,6 +237,7 @@ public class AlquilerServiceImpl implements AlquilerService {
 
         // Soft delete
         alquiler.setActivo(false);
+        alquiler.setEstado(EstadoAlquiler.FINALIZADO);
         alquilerRepository.save(alquiler);
 
         logger.info("Alquiler eliminado (soft delete) ID: {}", id);

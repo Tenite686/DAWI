@@ -374,9 +374,12 @@
 .modal-content {
   background: white;
   border-radius: 8px;
+  width: auto;
+  min-width: 500px;
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
+  flex-direction: column;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { TipoCliente } from '../../../../core/models/cliente.model';
@@ -34,6 +34,11 @@ export class CreateClienteComponent implements OnInit {
   isLoading: boolean = false;
   isSubmitting: boolean = false;
   errorMessage: string = '';
+
+  //Variable para la edicion
+  isEditMode: boolean = false;
+  clienteId: number | null= null;
+  titulo: string = "Nuevo CLiente";
   
   tiposCliente = Object.values(TipoCliente);
   
@@ -44,7 +49,8 @@ export class CreateClienteComponent implements OnInit {
     private fb: FormBuilder,
     private clienteService: ClienteService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     const today = new Date();
     this.fechaMin = today.toISOString().split('T')[0];
@@ -86,37 +92,90 @@ export class CreateClienteComponent implements OnInit {
   ngOnInit(): void {
     if (!this.authService.hasAnyRole(['ADMIN', 'SUPERVISOR'])) {
       this.router.navigate(['/dashboard']);
+      return;
     }
+
+    //logica de deteccion de edicion
+    this.route.queryParamMap.subscribe(params => {
+      const id = params.get('id');
+      if(id) {
+        this.isEditMode = true;
+        this.clienteId = +id;
+        this.titulo = "Editar Cliente"; //cambia titulo
+        this.cargarDatosCliente(this.clienteId);
+      }
+    });
   }
 
   onSubmit(): void {
-    if (this.clienteForm.valid) {
-      this.isSubmitting = true;
-      this.errorMessage = '';
-      
-      const clienteData = this.clienteForm.value;
-      
-      this.clienteService.crearCliente(clienteData).subscribe({
-        next: (response) => {
-          this.isSubmitting = false;
-          alert('Cliente creado exitosamente');
-          this.router.navigate(['/dashboard/clientes']);
+    // 1. Validaciones iniciales
+  if (this.clienteForm.invalid) {
+    this.markFormGroupTouched(this.clienteForm);
+    return;
+  }
+
+  this.isSubmitting = true;
+  this.errorMessage = '';
+  
+  const clienteData = this.clienteForm.value;
+
+  // Decidir si crear o actualizar
+  if (this.isEditMode && this.clienteId) {
+    
+      //Modo actualizar
+    this.clienteService.actualizarCliente(this.clienteId, clienteData).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        alert('Cliente actualizado exitosamente');
+        this.router.navigate(['/dashboard/clientes']);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        this.errorMessage = error.error?.message || 'Error al actualizar el cliente';
+        console.error('Error updating cliente: ',error);
+      }
+    });
+
+  } else {
+    
+    //Modo crear 
+    this.clienteService.crearCliente(clienteData).subscribe({
+      next: (response) => {
+        this.isSubmitting = false;
+        alert('Cliente creado exitosamente');
+        this.router.navigate(['/dashboard/clientes']);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        this.errorMessage = error.error?.message || 'Error al crear el cliente';
+        console.error('Error creating cliente:', error);
+      }
+    });
+  }
+} 
+
+  //Funcion para carhar datos
+  cargarDatosCliente(id: number): void {
+    this.isLoading = true;
+    this.clienteService.getClienteById(id).subscribe({
+        next: (cliente) => {
+          //Rellena el form con los datos que vienen del backend
+          this.clienteForm.patchValue(cliente);
+          this.isLoading = false;
         },
         error: (error) => {
-          this.isSubmitting = false;
-          this.errorMessage = error.error?.message || 'Error al crear el cliente';
-          console.error('Error creating cliente:', error);
+          console.error('Error cargando cliente', error);
+          this.errorMessage = "No se puede cargar la información del cliente";
+          this,this.isLoading = false;
         }
-      });
-    } else {
-      this.markFormGroupTouched(this.clienteForm);
-    }
+    });
   }
 
   cancelar(): void {
-    if (confirm('¿Desea cancelar la creación del cliente? Los datos no guardados se perderán.')) {
-      this.router.navigate(['/dashboard/clientes']);
-    }
+   const accion = this.isEditMode ? 'edición' : 'creación';
+   if(confirm('¿Desea cancelar?, Los datos no guardados se perderán')){
+    this.router.navigate(['/dashboard/clientes']);
+   }
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {

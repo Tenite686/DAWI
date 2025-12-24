@@ -1,12 +1,36 @@
 export interface Alquiler {
   id: number;
-  clienteId: number;
-  clienteNombre?: string;
-  vehiculoId: number;
-  vehiculoModelo?: string;
-  fechaInicio: Date;
-  fechaFinEstimada: Date;
-  fechaDevolucion?: Date;
+
+  // --- NUEVO: Objetos completos (Soluciona el error rojo) ---
+  cliente?: {
+    id: number;
+    nombreCompleto: string;
+    dniRuc?: string;
+    telefono?: string;
+  };
+
+  vehiculo?: {
+    id: number;
+    marca: string;
+    modelo: string;
+    placa: string;
+    precioPorDia?: number;
+  };
+
+  usuario?: {
+    id: number;
+    nombreCompleto: string;
+  };
+
+  // Mantenemos estos por si usas filtros, pero son opcionales
+  clienteId?: number;
+  vehiculoId?: number;
+
+  // En el JSON vienen, string funciona mejor con el pipe date
+  fechaInicio: string; 
+  fechaFinEstimada: string;
+  fechaDevolucionReal?: string; 
+  
   kilometrajeInicio: number;
   kilometrajeFin?: number;
   precioTotal?: number;
@@ -17,5 +41,6 @@ export interface Alquiler {
 export enum EstadoAlquiler {
   ACTIVO = 'ACTIVO',
   FINALIZADO = 'FINALIZADO',
-  CANCELADO = 'CANCELADO'
+  CANCELADO = 'CANCELADO',
+  COMPLETADO = 'COMPLETADO'
 }
