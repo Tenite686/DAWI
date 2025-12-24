@@ -13,7 +13,7 @@ public interface UsuarioService {
     void eliminar(Long id);
     UsuarioDto.UsuarioResponse obtenerPorId(Long id);
     List<UsuarioDto.UsuarioResponse> obtenerTodos();
-    Page<UsuarioDto.UsuarioResponse> obtenerPaginado(Pageable pageable);
+    Page<UsuarioDto.UsuarioResponse> obtenerPaginado(Pageable pageable, String rol);
     UsuarioDto.UsuarioResponse cambiarRol(Long id, Rol nuevoRol);
     UsuarioDto.UsuarioResponse cambiarEstado(Long id, Boolean activo);
     void cambiarPassword(Long id, UsuarioDto.CambiarPasswordRequest request);

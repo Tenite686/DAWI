@@ -416,3 +416,25 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+.btn-gray {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #e0e0e0;
+  color: #555;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-weight: 500;
+}
+.btn-gray:hover, .btn-gray:focus {
+  background: #bdbdbd;
+  color: #222;
+  outline: none;
+}
+.btn-gray .material-icons {
+  font-size: 20px;
+  color: inherit;
+}

@@ -44,6 +44,8 @@ public class ClienteDto {
 
         @Future(message = "La licencia debe estar vigente")
         private LocalDate licenciaVencimiento;
+
+        private Boolean activo;
     }
 
     @Data

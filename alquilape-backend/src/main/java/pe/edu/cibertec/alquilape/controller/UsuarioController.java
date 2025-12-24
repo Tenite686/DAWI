@@ -17,8 +17,6 @@ import pe.edu.cibertec.alquilape.model.dto.PageResponse;
 import pe.edu.cibertec.alquilape.model.dto.UsuarioDto;
 import pe.edu.cibertec.alquilape.service.UsuarioService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
@@ -43,12 +41,13 @@ public class UsuarioController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "ASC") String direction) {
+            @RequestParam(defaultValue = "ASC") String direction,
+            @RequestParam(required = false) String rol) {
 
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
 
-        Page<UsuarioDto.UsuarioResponse> pageResult = usuarioService.obtenerPaginado(pageable);
+        Page<UsuarioDto.UsuarioResponse> pageResult = usuarioService.obtenerPaginado(pageable, rol);
 
         PageResponse<UsuarioDto.UsuarioResponse> response = PageResponse.<UsuarioDto.UsuarioResponse>builder()
                 .content(pageResult.getContent())

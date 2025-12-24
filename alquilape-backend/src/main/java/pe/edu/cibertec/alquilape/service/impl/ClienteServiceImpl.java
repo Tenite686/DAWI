@@ -91,6 +91,7 @@ public class ClienteServiceImpl implements ClienteService {
         updateIfNotNull(request.getTipo(), cliente::setTipo);
         updateIfNotNull(request.getLicenciaNumero(), cliente::setLicenciaNumero);
         updateIfNotNull(request.getLicenciaVencimiento(), cliente::setLicenciaVencimiento);
+        updateIfNotNull(request.getActivo(), cliente::setActivo);
 
         //mapper.map(request, Cliente.class);
         Cliente updated = clienteRepository.save(cliente);

@@ -1,0 +1,15 @@
+Antes de Instalen esto:
+npm install jwt-decode
+npm install jwt-decode sweetalert2
+
+Admin:
+admin
+pass123
+
+Supervisor:
+supervisor1
+sup123
+
+Asistente:
+Asistente1
+123

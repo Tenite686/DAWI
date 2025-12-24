@@ -49,20 +49,24 @@ export class UsuarioListComponent implements OnInit {
     this.loadUsuarios();
   }
 
-  loadUsuarios(): void {
-    this.isLoading = true;
-    this.usuarioService.getUsuarios(this.currentPage, this.pageSize).subscribe({
-      next: (response) => {
-        this.usuarios = response.content;
-        this.totalElements = response.totalElements;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading usuarios:', error);
-        this.isLoading = false;
-      }
-    });
-  }
+loadUsuarios(): void {
+  this.isLoading = true;
+  this.usuarioService.getUsuarios(
+    this.currentPage,
+    this.pageSize,
+    this.rolFilter // <-- agrega este argumento
+  ).subscribe({
+    next: (response) => {
+      this.usuarios = response.content;
+      this.totalElements = response.totalElements;
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.error('Error loading usuarios:', error);
+      this.isLoading = false;
+    }
+  });
+}
 
   onPageChange(event: any): void {
     this.currentPage = event.pageIndex;

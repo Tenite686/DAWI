@@ -11,7 +11,7 @@ import { CreateClienteComponent } from './modules/clientes/components/create-cli
 import { CreateAlquilerComponent } from './modules/alquileres/components/create-alquiler/create-alquiler.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
-
+import { InicioComponent } from './modules/inicio/inicio.component';
 export const routes: Routes = [
   { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
   { path: 'auth/login', component: LoginComponent },
@@ -21,6 +21,11 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [AuthGuard],
     children: [
+      {
+        path: '',
+        component: InicioComponent,
+        canActivate: [AuthGuard]
+      },
       {
         path: 'usuarios',
         component: UsuarioListComponent,

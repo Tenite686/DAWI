@@ -187,7 +187,8 @@
 
 <!-- Modal de Historial (placeholder) -->
 <div *ngIf="mostrarModalHistorial" class="modal-overlay">
-  <div class="modal-content modal-lg"> <div class="modal-header">
+  <div class="modal-content modal-lg">
+     <div class="modal-header cliente-modal-header">
       <h3 class="modal-title">
         Historial: {{ clienteSeleccionado?.nombre }} {{ clienteSeleccionado?.apellido }}
       </h3>
@@ -225,8 +226,9 @@
               <td>
                 <span class="badge" [ngClass]="{
                   'badge-active': alq.estado === 'ACTIVO',
-                  'badge-success': alq.estado === 'FINALIZADO' || alq.estado === 'COMPLETADO',
-                  'badge-danger': alq.estado === 'CANCELADO'
+                  'badge-finalizado': alq.estado === 'FINALIZADO',
+                  'badge-completado': alq.estado === 'COMPLETADO',
+                  'badge-cancelado': alq.estado === 'CANCELADO'
                 }">
                   {{ alq.estado }}
                 </span>

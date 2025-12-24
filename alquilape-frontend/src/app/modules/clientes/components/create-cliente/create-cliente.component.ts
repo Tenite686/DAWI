@@ -68,7 +68,8 @@ export class CreateClienteComponent implements OnInit {
       direccion: ['', Validators.required],
       tipo: ['PERSONA', Validators.required],
       licenciaNumero: [''],
-      licenciaVencimiento: ['']
+      licenciaVencimiento: [''],
+      activo: [true]
     });
     
     // Agregar validaciones condicionales para PERSONA
@@ -107,8 +108,7 @@ export class CreateClienteComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    // 1. Validaciones iniciales
+ onSubmit(): void {
   if (this.clienteForm.invalid) {
     this.markFormGroupTouched(this.clienteForm);
     return;
@@ -117,12 +117,17 @@ export class CreateClienteComponent implements OnInit {
   this.isSubmitting = true;
   this.errorMessage = '';
   
-  const clienteData = this.clienteForm.value;
+  // Clonamos el valor del formulario y aseguramos el campo 'activo'
+  const clienteData = {
+    ...this.clienteForm.value,
+    // Forzamos que sea booleano por si el select lo devuelve como string
+    activo: this.clienteForm.get('activo')?.value === true
+  };
 
-  // Decidir si crear o actualizar
+  // LOG DE CONTROL: Mira la consola del navegador al dar clic en Guardar
+  console.log('Enviando datos al servidor:', clienteData);
+
   if (this.isEditMode && this.clienteId) {
-    
-      //Modo actualizar
     this.clienteService.actualizarCliente(this.clienteId, clienteData).subscribe({
       next: () => {
         this.isSubmitting = false;
@@ -132,15 +137,12 @@ export class CreateClienteComponent implements OnInit {
       error: (error) => {
         this.isSubmitting = false;
         this.errorMessage = error.error?.message || 'Error al actualizar el cliente';
-        console.error('Error updating cliente: ',error);
+        console.error('Error updating cliente: ', error);
       }
     });
-
   } else {
-    
-    //Modo crear 
     this.clienteService.crearCliente(clienteData).subscribe({
-      next: (response) => {
+      next: () => {
         this.isSubmitting = false;
         alert('Cliente creado exitosamente');
         this.router.navigate(['/dashboard/clientes']);
@@ -152,8 +154,8 @@ export class CreateClienteComponent implements OnInit {
       }
     });
   }
-} 
-
+}
+ 
   //Funcion para carhar datos
   cargarDatosCliente(id: number): void {
     this.isLoading = true;

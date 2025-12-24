@@ -1,0 +1,127 @@
+.inicio-title {
+  text-align: center;
+  margin-top: 2rem;
+  color: #1976d2;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  animation: fadeInDown 1s;
+}
+
+.inicio-desc {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #444;
+  font-size: 1.1rem;
+  animation: fadeIn 1.5s;
+}
+
+.inicio-resumen {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.resumen-item {
+  background: #e3f2fd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.07);
+  padding: 1rem 2rem;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.05rem;
+  animation: fadeInUp 1.2s;
+}
+
+.resumen-icon {
+  font-size: 2.2rem;
+  color: #1976d2;
+}
+
+.inicio-cards {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: #f5f6fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+  padding: 2rem 2.2rem;
+  min-width: 220px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fadeInUp 1.2s;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(25, 118, 210, 0.15);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.card-clientes .card-icon {
+  color: #43a047;
+}
+.card-vehiculos .card-icon {
+  color: #1976d2;
+}
+.card-alquileres .card-icon {
+  color: #fbc02d;
+}
+
+.card h3 {
+  margin-top: 0.5rem;
+  color: #1976d2;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.inicio-tips {
+  margin: 2.5rem auto 1rem auto;
+  max-width: 600px;
+  background: #fffde7;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(251,192,45,0.07);
+  padding: 1.2rem 2rem;
+  animation: fadeIn 1.5s;
+}
+
+.inicio-tips h4 {
+  color: #fbc02d;
+  margin-top: 0;
+  margin-bottom: 0.7rem;
+  font-size: 1.1rem;
+}
+
+.inicio-tips ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #444;
+  font-size: 1rem;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+@keyframes fadeIn {
+  from { opacity: 0;}
+  to { opacity: 1;}
+}

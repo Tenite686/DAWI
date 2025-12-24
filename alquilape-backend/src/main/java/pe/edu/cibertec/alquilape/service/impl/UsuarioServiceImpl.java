@@ -1,6 +1,5 @@
 package pe.edu.cibertec.alquilape.service.impl;
 
-
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -233,10 +232,26 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UsuarioDto.UsuarioResponse> obtenerPaginado(Pageable pageable) {
+    public Page<UsuarioDto.UsuarioResponse> obtenerPaginado(Pageable pageable, String rol) {
         logger.debug("Obteniendo usuarios paginados");
+        Page<Usuario> usuarios;
 
-        Page<Usuario> usuarios = usuarioRepository.findAll(pageable);
+        // Si el rol no es nulo ni está vacío, filtramos usando el repositorio
+        if (rol != null && !rol.trim().isEmpty()) {
+            try {
+                // Convertimos el String (ej: "ADMIN") al Enum Rol
+                Rol rolEnum = Rol.valueOf(rol.toUpperCase());
+                usuarios = usuarioRepository.findByRol(rolEnum, pageable);
+            } catch (IllegalArgumentException e) {
+                // Si el rol enviado no coincide con el Enum, traemos todos por defecto
+                logger.warn("Rol inválido recibido: {}, se ignora el filtro", rol);
+                usuarios = usuarioRepository.findAll(pageable);
+            }
+        } else {
+            // Si no hay filtro (caso "Todos los roles"), traemos todos
+            usuarios = usuarioRepository.findAll(pageable);
+        }
+
         return usuarios.map(usuario -> mapper.map(usuario, UsuarioDto.UsuarioResponse.class));
     }
 }

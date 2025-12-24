@@ -17,12 +17,22 @@ export class UsuarioService {
 
   constructor(private http: HttpClient) {}
 
-  getUsuarios(page: number = 0, size: number = 10, sortBy: string = 'id', direction: string = 'ASC'): Observable<any> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString())
-      .set('sortBy', sortBy)
-      .set('direction', direction);
+  getUsuarios(
+  page: number = 0,
+  size: number = 10,
+  rolFilter: string = '',
+  sortBy: string = 'id',
+  direction: string = 'ASC'
+): Observable<any> {
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString())
+    .set('sortBy', sortBy)
+    .set('direction', direction);
+
+  if (rolFilter && rolFilter.trim() !== '') {
+    params = params.set('rol', rolFilter.trim());
+  }
 
     return this.http.get<any>(this.apiUrl, { params });
   }

@@ -415,6 +415,7 @@
   background: rgba(255,255,255,0.2);
 }
 
+
 .modal-body {
   padding: 1.5rem;
 }
@@ -498,4 +499,62 @@ mat-paginator {
   .no-data .icon-large {
     font-size: 3rem;
   }
+}
+.alquileres-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.alquileres-table th, .alquileres-table td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: middle;
+}
+
+.alquileres-table th {
+text-align: center !important;
+}
+.alquileres-table td {
+  text-align: center !important;
+}
+
+.alquileres-table tr:nth-child(even) {
+  background: #f7f7fc;
+}
+
+.alquileres-table small {
+  color: #6c757d;
+  font-size: 0.85em;
+}
+
+@media (max-width: 600px) {
+  .alquileres-table th, .alquileres-table td {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.85em;
+  }
+}
+.modal-content.modal-lg {
+  max-width: 950px;
+  width: 95vw;
+  min-width: 320px;
+}
+
+.badge-completado {
+  background: linear-gradient(135deg, #1976d2 0%, #64b5f6 100%);
+  color: #fff;
+}
+
+.badge-cancelado {
+  background: linear-gradient(135deg, #e53935 0%, #ff7043 100%);
+  color: #fff;
+}
+
+.badge-finalizado {
+  background: linear-gradient(135deg, #fbc02d 0%, #fff176 100%);
+  color: #333;
 }

@@ -86,7 +86,6 @@
           <span *ngIf="f['email'].errors?.['email']">Email inválido</span>
         </div>
       </div>
-
       <!-- Dirección -->
       <div class="form-group">
         <label for="direccion">Dirección *</label>
@@ -100,6 +99,20 @@
           <span *ngIf="f['direccion'].errors?.['required']">Dirección es requerida</span>
         </div>
       </div>
+          <div class="form-group" *ngIf="isEditMode">
+          <label for="activo">Estado del Cliente *</label>
+          <select id="activo" 
+                  formControlName="activo" 
+                  class="form-control"
+                  [class.is-invalid]="f['activo']?.invalid && f['activo']?.touched">
+            <option [ngValue]="true">Activo</option>
+            <option [ngValue]="false">Inactivo</option>
+          </select>
+          <div *ngIf="f['activo']?.invalid && f['activo']?.touched" class="invalid-feedback">
+            <span>Estado es requerido</span>
+          </div>
+        </div>
+
     </div>
 
     <div class="form-section">
@@ -117,8 +130,8 @@
         <div *ngIf="f['tipo'].invalid && f['tipo'].touched" class="invalid-feedback">
           <span *ngIf="f['tipo'].errors?.['required']">Tipo es requerido</span>
         </div>
+          
       </div>
-
       <!-- Información de Licencia (solo para PERSONA) -->
       <div *ngIf="f['tipo'].value === 'PERSONA'" class="licencia-section">
         <div class="form-row">

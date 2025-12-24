@@ -118,6 +118,20 @@ export class CreateAlquilerComponent implements OnInit {
     if (this.alquilerForm.valid) {
       this.isSubmitting = true;
       this.errorMessage = '';
+
+      //Obtenemos lso valores actuales del fomulario
+      const fromValues = this.alquilerForm.value;
+      // creamos un nuevo objeto con las conversiones necesarias
+      const payload ={
+        ...fromValues,
+        clienteId: Number(fromValues.clienteId), //convertir a numero
+        vehiculoId: Number(fromValues.vehiculoId), //convertir a numero
+        //Agregar los segundos ":00"
+        fechaInicio: fromValues.fechaInicio.length === 16
+                    ? fromValues.fechaInicio + ":00" : fromValues.fechaInicio,
+        fechaFinEstimada: fromValues.fechaFinEstimada.length === 16
+                    ? fromValues.fechaFinEstimada + ":00" : fromValues.fechaFinEstimada
+      };
       this.alquilerService.crearAlquiler(this.alquilerForm.value).subscribe({
         next: () => {
           this.isSubmitting = false;

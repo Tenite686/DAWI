@@ -11,16 +11,6 @@
 
   <!-- Filtros -->
   <div class="filters">
-    <div class="search-box">
-      <input type="text" 
-             [(ngModel)]="searchTerm" 
-             placeholder="Buscar por nombre o email..."
-             (keyup.enter)="loadUsuarios()">
-      <button (click)="loadUsuarios()">
-        <span class="material-icons">search</span>
-      </button>
-    </div>
-    
     <select [(ngModel)]="rolFilter" (change)="loadUsuarios()">
       <option value="">Todos los roles</option>
       <option *ngFor="let rol of roles" [value]="rol">{{rol}}</option>
@@ -38,7 +28,7 @@
           <th>Email</th>
           <th>Rol</th>
           <th>Estado</th>
-          <th>Fecha Creación</th>
+          <th></th>
           <th *ngIf="canEdit()">Acciones</th>
         </tr>
       </thead>
@@ -83,10 +73,6 @@
               <option value="ASISTENTE">ASISTENTE</option>
             </select>
             
-            <button class="btn-icon btn-danger" 
-                    (click)="eliminarUsuario(usuario.id)">
-              <span class="material-icons">delete</span>
-            </button>
           </td>
         </tr>
       </tbody>
