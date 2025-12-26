@@ -74,20 +74,25 @@ export class CreateClienteComponent implements OnInit {
     
     // Agregar validaciones condicionales para PERSONA
     this.clienteForm.get('tipo')?.valueChanges.subscribe(tipo => {
-      const licenciaNumeroControl = this.clienteForm.get('licenciaNumero');
-      const licenciaVencimientoControl = this.clienteForm.get('licenciaVencimiento');
-      
-      if (tipo === 'PERSONA') {
-        licenciaNumeroControl?.setValidators([Validators.required]);
-        licenciaVencimientoControl?.setValidators([Validators.required]);
-      } else {
-        licenciaNumeroControl?.clearValidators();
-        licenciaVencimientoControl?.clearValidators();
-      }
-      
-      licenciaNumeroControl?.updateValueAndValidity();
-      licenciaVencimientoControl?.updateValueAndValidity();
-    });
+  const licenciaNumeroControl = this.clienteForm.get('licenciaNumero');
+  const licenciaVencimientoControl = this.clienteForm.get('licenciaVencimiento');
+  
+  if (tipo === 'PERSONA') {
+    licenciaNumeroControl?.setValidators([Validators.required]);
+    licenciaVencimientoControl?.setValidators([Validators.required]);
+  } else {
+    licenciaNumeroControl?.clearValidators();
+    licenciaVencimientoControl?.clearValidators();
+    licenciaNumeroControl?.setValue(''); // Limpiar si cambia a empresa
+    licenciaVencimientoControl?.setValue('');
+  }
+  
+  // ESTO asegura que el motor de validación se reinicie correctamente
+  licenciaNumeroControl?.markAsUntouched();
+  licenciaVencimientoControl?.markAsUntouched();
+  licenciaNumeroControl?.updateValueAndValidity();
+  licenciaVencimientoControl?.updateValueAndValidity();
+});
   }
 
   ngOnInit(): void {
@@ -106,6 +111,7 @@ export class CreateClienteComponent implements OnInit {
         this.cargarDatosCliente(this.clienteId);
       }
     });
+    this.clienteForm.get('tipo')?.updateValueAndValidity({emitEvent: true});
   }
 
  onSubmit(): void {
@@ -158,20 +164,23 @@ export class CreateClienteComponent implements OnInit {
  
   //Funcion para carhar datos
   cargarDatosCliente(id: number): void {
-    this.isLoading = true;
-    this.clienteService.getClienteById(id).subscribe({
-        next: (cliente) => {
-          //Rellena el form con los datos que vienen del backend
-          this.clienteForm.patchValue(cliente);
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error cargando cliente', error);
-          this.errorMessage = "No se puede cargar la información del cliente";
-          this,this.isLoading = false;
-        }
-    });
-  }
+  this.isLoading = true;
+  this.clienteService.getClienteById(id).subscribe({
+    next: (cliente) => {
+      this.clienteForm.patchValue(cliente);
+      
+      // AGREGA ESTO AQUÍ:
+      this.clienteForm.get('tipo')?.updateValueAndValidity({ emitEvent: true });
+      
+      this.isLoading = false;
+    },
+    error: (error) => { /* ... */ }
+  });
+}
+  
+  canEditEstado(): boolean {
+  return this.authService.hasRole('ADMIN');
+}
 
   cancelar(): void {
    const accion = this.isEditMode ? 'edición' : 'creación';

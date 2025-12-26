@@ -99,19 +99,26 @@
           <span *ngIf="f['direccion'].errors?.['required']">Dirección es requerida</span>
         </div>
       </div>
-          <div class="form-group" *ngIf="isEditMode">
-          <label for="activo">Estado del Cliente *</label>
-          <select id="activo" 
-                  formControlName="activo" 
-                  class="form-control"
-                  [class.is-invalid]="f['activo']?.invalid && f['activo']?.touched">
-            <option [ngValue]="true">Activo</option>
-            <option [ngValue]="false">Inactivo</option>
-          </select>
-          <div *ngIf="f['activo']?.invalid && f['activo']?.touched" class="invalid-feedback">
-            <span>Estado es requerido</span>
-          </div>
-        </div>
+<div class="form-group" *ngIf="isEditMode">
+  <label for="activo">Estado del Cliente *</label>
+  <ng-container *ngIf="canEditEstado(); else estadoSoloLectura">
+    <select id="activo" 
+            formControlName="activo" 
+            class="form-control"
+            [class.is-invalid]="f['activo']?.invalid && f['activo']?.touched">
+      <option [ngValue]="true">Activo</option>
+      <option [ngValue]="false">Inactivo</option>
+    </select>
+    <div *ngIf="f['activo']?.invalid && f['activo']?.touched" class="invalid-feedback">
+      <span>Estado es requerido</span>
+    </div>
+  </ng-container>
+  <ng-template #estadoSoloLectura>
+    <div class="form-control" style="background:#f5f5f5;">
+      {{ clienteForm.value.activo ? 'Activo' : 'Inactivo' }}
+    </div>
+  </ng-template>
+</div>
 
     </div>
 
@@ -136,33 +143,38 @@
       <div *ngIf="f['tipo'].value === 'PERSONA'" class="licencia-section">
         <div class="form-row">
           <!-- Número de Licencia -->
-          <div class="form-group">
-            <label for="licenciaNumero">Número de Licencia *</label>
-            <input type="text" 
-                   id="licenciaNumero" 
-                   formControlName="licenciaNumero" 
-                   class="form-control"
-                   placeholder="L12345678"
-                   [class.is-invalid]="f['licenciaNumero'].invalid && f['licenciaNumero'].touched">
-            <div *ngIf="f['licenciaNumero'].invalid && f['licenciaNumero'].touched" class="invalid-feedback">
-              <span *ngIf="f['licenciaNumero'].errors?.['required']">Número de licencia es requerido</span>
-            </div>
-          </div>
+        <div class="form-group">
+  <label for="licenciaNumero">Número de Licencia *</label>
+  <input type="text" 
+         id="licenciaNumero" 
+         formControlName="licenciaNumero" 
+         class="form-control"
+         placeholder="L12345678"
+         maxlength="9"
+         (blur)="f['licenciaNumero'].markAsTouched()" 
+         [class.is-invalid]="f['licenciaNumero'].invalid && f['licenciaNumero'].touched">
+  
+  <div *ngIf="f['licenciaNumero'].invalid && f['licenciaNumero'].touched" class="invalid-feedback">
+    <span *ngIf="f['licenciaNumero'].errors?.['required']">Número de licencia es requerido</span>
+  </div>
+</div>
 
           <!-- Vencimiento de Licencia -->
-          <div class="form-group">
-            <label for="licenciaVencimiento">Vencimiento de Licencia *</label>
-            <input type="date" 
-                   id="licenciaVencimiento" 
-                   formControlName="licenciaVencimiento" 
-                   class="form-control"
-                   [min]="fechaMin"
-                   [max]="fechaMax"
-                   [class.is-invalid]="f['licenciaVencimiento'].invalid && f['licenciaVencimiento'].touched">
-            <div *ngIf="f['licenciaVencimiento'].invalid && f['licenciaVencimiento'].touched" class="invalid-feedback">
-              <span *ngIf="f['licenciaVencimiento'].errors?.['required']">Vencimiento es requerido</span>
-            </div>
-          </div>
+         <div class="form-group">
+  <label for="licenciaVencimiento">Vencimiento de Licencia *</label>
+  <input type="date" 
+         id="licenciaVencimiento" 
+         formControlName="licenciaVencimiento" 
+         class="form-control"
+         [min]="fechaMin"
+         [max]="fechaMax"
+         (blur)="f['licenciaVencimiento'].markAsTouched()"
+         [class.is-invalid]="f['licenciaVencimiento'].invalid && f['licenciaVencimiento'].touched">
+  
+  <div *ngIf="f['licenciaVencimiento'].invalid && f['licenciaVencimiento'].touched" class="invalid-feedback">
+    <span *ngIf="f['licenciaVencimiento'].errors?.['required']">Vencimiento es requerido</span>
+  </div>
+</div>
         </div>
       </div>
     </div>

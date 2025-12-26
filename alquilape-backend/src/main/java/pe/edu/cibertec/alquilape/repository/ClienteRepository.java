@@ -23,4 +23,10 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long>,
 
     @Query("SELECT c FROM Cliente c LEFT JOIN FETCH c.alquileres WHERE c.id = :id")
     Optional<Cliente> findByIdWithAlquileres(@Param("id") Long id);
+
+    boolean existsByTelefono(String telefono);
+
+    Optional<Cliente> findByLicenciaNumero(String licenciaNumero);
+
+    boolean existsByLicenciaNumero(String licenciaNumero);
 }

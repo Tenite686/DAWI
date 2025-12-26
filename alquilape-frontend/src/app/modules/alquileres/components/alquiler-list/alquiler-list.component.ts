@@ -80,21 +80,26 @@ export class AlquilerListComponent implements OnInit {
   }
 
   loadAlquileres(): void {
-    this.isLoading = true;
-    this.alquilerService.getAlquileres(this.currentPage, this.pageSize).subscribe({
-      next: (response) => {
-        this.alquileres = response.content || response;
-        this.dataSource.data = this.alquileres;
-        this.totalElements = response.totalElements || this.alquileres.length;
-        this.isLoading = false;
-        this.dataSource.paginator = this.paginator;
-      },
-      error: (error) => {
-        console.error('Error loading alquileres:', error);
-        this.isLoading = false;
+  this.isLoading = true;
+  this.alquilerService.getAlquileres(this.currentPage, this.pageSize).subscribe({
+    next: (response) => {
+      this.alquileres = response.content || response;
+      this.dataSource.data = this.alquileres;
+      this.totalElements = response.totalElements || this.alquileres.length;
+      
+      // AGREGAR ESTO: Sincroniza el índice del paginador con la variable del componente
+      if (this.paginator) {
+        this.paginator.pageIndex = this.currentPage;
       }
-    });
-  }
+
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.error('Error loading alquileres:', error);
+      this.isLoading = false;
+    }
+  });
+}
 
   loadClientes(): void {
     this.clienteService.getClientes(0, 100).subscribe({
@@ -165,36 +170,48 @@ export class AlquilerListComponent implements OnInit {
   }
 
   abrirModalDevolucion(alquiler: Alquiler): void {
-    this.alquilerSeleccionado = alquiler;
-    this.datosDevolucion = {
-      fechaDevolucion: new Date().toISOString().slice(0, 16),
-      kilometrajeFin: alquiler.kilometrajeInicio + 100,
-      observaciones: 'Vehículo devuelto en buen estado'
-    };
-    this.mostrarModalDevolucion = true;
-  }
+  this.alquilerSeleccionado = alquiler;
+  this.datosDevolucion = {
+    fechaDevolucion: alquiler.fechaFinEstimada 
+      ? this.formatDateToLocalInput(alquiler.fechaFinEstimada)
+      : this.formatDateToLocalInput(new Date().toISOString()),
+    kilometrajeFin: alquiler.kilometrajeInicio + 100,
+    observaciones: 'Vehículo devuelto en buen estado'
+  };
+  this.mostrarModalDevolucion = true;
+}
 
   registrarDevolucion(): void {
-    if (this.alquilerSeleccionado) {
-      this.isLoading = true;
-      this.alquilerService.registrarDevolucion(
-        this.alquilerSeleccionado.id,
-        this.datosDevolucion
-      ).subscribe({
-        next: () => {
-          this.loadAlquileres();
-          this.cerrarModalDevolucion();
-          this.isLoading = false;
-          alert('Devolución registrada exitosamente');
-        },
-        error: (error) => {
-          console.error('Error registrando devolución:', error);
-          this.isLoading = false;
-          alert('Error al registrar devolución');
-        }
-      });
-    }
+  if (this.alquilerSeleccionado) {
+    this.isLoading = true;
+
+    // Convertir fechaDevolucion a ISO string si es necesario
+    const fechaLocal = this.datosDevolucion.fechaDevolucion;
+    const fechaISO = new Date(fechaLocal).toISOString();
+
+    const datos = {
+      ...this.datosDevolucion,
+      fechaDevolucion: fechaISO
+    };
+
+    this.alquilerService.registrarDevolucion(
+      this.alquilerSeleccionado.id,
+      datos
+    ).subscribe({
+      next: () => {
+        this.loadAlquileres();
+        this.cerrarModalDevolucion();
+        this.isLoading = false;
+        alert('Devolución registrada exitosamente');
+      },
+      error: (error) => {
+        console.error('Error registrando devolución:', error);
+        this.isLoading = false;
+        alert('Error al registrar devolución');
+      }
+    });
   }
+}
 
   cancelarAlquiler(alquilerId: number): void {
     if (confirm('¿Está seguro de cancelar este alquiler?')) {
@@ -215,18 +232,23 @@ export class AlquilerListComponent implements OnInit {
   }
 
   eliminarAlquiler(alquilerId: number): void {
-    if (confirm('¿Está seguro de eliminar este alquiler?')) {
-      this.isLoading = true;
-      this.alquilerService.eliminarAlquiler(alquilerId).subscribe({
-        next: () => {
-          this.loadAlquileres();
-          this.isLoading = false;
-          alert('Alquiler eliminado exitosamente');
-        },
-        error: (error) => {
-          console.error('Error eliminando alquiler:', error);
-          this.isLoading = false;
-          alert('Error al eliminar alquiler');
+    const alquiler = this.alquileres.find(a => a.id === alquilerId);
+  if (alquiler && alquiler.estado === 'FINALIZADO') {
+    alert('El alquiler ya está finalizado.');
+    return;
+  }
+  if (confirm('¿Está seguro de eliminar este alquiler?')) {
+    this.isLoading = true;
+    this.alquilerService.eliminarAlquiler(alquilerId).subscribe({
+      next: () => {
+        this.loadAlquileres();
+        this.isLoading = false;
+        alert('Alquiler eliminado exitosamente');
+      },
+      error: (error) => {
+        console.error('Error eliminando alquiler:', error);
+        this.isLoading = false;
+        alert('Error al eliminar alquiler');
         }
       });
     }
@@ -273,4 +295,21 @@ export class AlquilerListComponent implements OnInit {
   canEdit(): boolean {
     return this.authService.hasAnyRole(['ADMIN', 'SUPERVISOR']);
   }
+
+  private formatDateToLocalInput(dateString: string): string {
+  const date = new Date(dateString);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const MM = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const mm = pad(date.getMinutes());
+  return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+}
+onPageChange(event: any): void {
+    this.currentPage = event.pageIndex; // Cambia a la página seleccionada
+    this.pageSize = event.pageSize;     // Cambia el tamaño de página si el usuario lo elige
+    this.loadAlquileres();              // Recarga los datos llamando al backend
+  }
+
 }

@@ -48,9 +48,13 @@ public class ClienteServiceImpl implements ClienteService {
         if (clienteRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("Cliente", "email", request.getEmail());
         }
+        // Validar teléfono único
+        if (request.getTelefono() != null && clienteRepository.existsByTelefono((request.getTelefono()))) {
+            throw new DuplicateResourceException("Cliente", "teléfono", request.getTelefono());
+        }
 
         // Validar licencia vigente
-        validarLicencia(request.getLicenciaNumero(), request.getLicenciaVencimiento());
+        validarLicencia(request.getLicenciaNumero(), request.getLicenciaVencimiento(), null);
 
         Cliente cliente = mapper.map(request, Cliente.class);
         Cliente saved = clienteRepository.save(cliente);
@@ -80,7 +84,7 @@ public class ClienteServiceImpl implements ClienteService {
         }
 
         // Validar licencia vigente
-        validarLicencia(request.getLicenciaNumero(), request.getLicenciaVencimiento());
+        validarLicencia(request.getLicenciaNumero(), request.getLicenciaVencimiento(), id);
 
         updateIfNotNull(request.getNombre(), cliente::setNombre);
         updateIfNotNull(request.getApellido(), cliente::setApellido);
@@ -185,11 +189,18 @@ public class ClienteServiceImpl implements ClienteService {
 
     }
 
-    private void validarLicencia(String numero, LocalDate vencimiento) {
+    private void validarLicencia(String numero, LocalDate vencimiento, Long idActual) {
         if (numero != null && !numero.isBlank()) {
+            // Validar Duplicidad en BD
+            clienteRepository.findByLicenciaNumero(numero).ifPresent(existente -> {
+                // Si el cliente encontrado tiene un ID diferente al que estamos procesando, es duplicado
+                if (idActual == null || !existente.getId().equals(idActual)) {
+                    throw new DuplicateResourceException("Cliente", "número de licencia", numero);
+                }
+            });
+            //Validar Vencimiento (tu lógica original)
             if (vencimiento == null) {
-                throw new ValidationException(
-                        "Si proporciona número de licencia, debe indicar fecha de vencimiento");
+                throw new ValidationException("Si proporciona número de licencia, debe indicar fecha de vencimiento");
             }
             if (vencimiento.isBefore(LocalDate.now())) {
                 throw new ValidationException("La licencia de conducir está vencida");

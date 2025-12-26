@@ -112,14 +112,19 @@ cambiarPagina(e: any) {
   buscarVehiculos(): void {
     this.isLoading = true;
     const filtrosActivos: any = {};
-    
+
     Object.keys(this.filtros).forEach(key => {
-      const value = (this.filtros as any)[key];
-      if (value !== null && value !== undefined && value !== '') {
+      let value = (this.filtros as any)[key];
+      if ((key === 'precioMin' || key === 'precioMax') && value !== null && value !== undefined && value !== '') {
+        value = Number(value);
+        if (!isNaN(value)) {
+          filtrosActivos[key] = value;
+        }
+      } else if (key !== 'precioMin' && key !== 'precioMax' && value !== null && value !== undefined && value !== '') {
         filtrosActivos[key] = value;
       }
     });
-    
+
     this.vehiculoService.buscarVehiculos(filtrosActivos).subscribe({
       next: (response) => {
         this.vehiculos = response.content || response;
@@ -159,24 +164,33 @@ cambiarPagina(e: any) {
     this.mostrarModalDetalles = true;
   }
 
-  eliminarVehiculo(vehiculoId: number): void {
-    if (confirm('¿Está seguro de eliminar este vehículo?')) {
-      this.isLoading = true;
-      this.vehiculoService.eliminarVehiculo(vehiculoId).subscribe({
-        next: () => {
-          this.loadVehiculos();
-          this.loadVehiculosDisponibles();
-          this.isLoading = false;
-          alert('Vehículo eliminado exitosamente');
-        },
-        error: (error) => {
-          console.error('Error eliminando vehículo:', error);
-          this.isLoading = false;
-          alert('Error al eliminar vehículo');
-        }
-      });
-    }
+ eliminarVehiculo(vehiculoId: number): void {
+  const vehiculo = this.vehiculos.find(v => v.id === vehiculoId);
+  if (vehiculo && vehiculo.estado === 'INACTIVO') {
+    alert('Este vehículo ya está inactivo.');
+    return;
   }
+  if (vehiculo && vehiculo.estado === 'ALQUILADO') {
+    alert('Este vehículo está alquilado.');
+    return;
+  }
+  if (confirm('¿Está seguro de eliminar este vehículo?')) {
+    this.isLoading = true;
+    this.vehiculoService.eliminarVehiculo(vehiculoId).subscribe({
+      next: () => {
+        this.loadVehiculos();
+        this.loadVehiculosDisponibles();
+        this.isLoading = false;
+        alert('Vehículo eliminado exitosamente');
+      },
+      error: (error) => {
+        console.error('Error eliminando vehículo:', error);
+        this.isLoading = false;
+        alert('Error al eliminar vehículo');
+      }
+    });
+  }
+}
 
   cambiarEstado(vehiculoId: number, nuevoEstado: string): void {
     const vehiculo = this.vehiculos.find(v => v.id === vehiculoId);
